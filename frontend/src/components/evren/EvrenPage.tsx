@@ -4,7 +4,6 @@ import { EvrenFileUpload } from './EvrenFileUpload';
 import { EvrenExtractionView } from './EvrenExtractionView';
 import { EvrenExtractionResponse } from '../../types/evren';
 import { evrenApi } from '../../services/evrenApi';
-import { AlertCircle } from 'lucide-react';
 
 interface EvrenPageProps {
   onSwitchApp: () => void;
@@ -46,16 +45,13 @@ export const EvrenPage: React.FC<EvrenPageProps> = ({ onSwitchApp }) => {
       {/* Error Toast Alert */}
       {errorMsg && (
         <div className="max-w-4xl mx-auto mt-4 px-4 w-full">
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center justify-between text-sm shadow-xs">
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500" />
-              <span>{errorMsg}</span>
-            </div>
+          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded flex items-center justify-between text-sm">
+            <span>{errorMsg}</span>
             <button 
               onClick={() => setErrorMsg(null)}
-              className="text-red-500 hover:text-red-700 font-bold ml-4"
+              className="text-red-700 hover:text-red-900 underline text-xs font-semibold ml-4"
             >
-              ×
+              Dismiss
             </button>
           </div>
         </div>
@@ -78,18 +74,9 @@ export const EvrenPage: React.FC<EvrenPageProps> = ({ onSwitchApp }) => {
         )}
       </main>
 
-      {/* Clean Evren AI Footer (Zero Pharma references) */}
-      <footer className="border-t border-[#3F657F]/20 bg-[#F6F9FB] py-4 text-center text-xs text-slate-500 mt-auto">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center space-x-2">
-            <span className="font-bold text-[#3F657F]">Evren AI</span>
-            <span>•</span>
-            <span>Advisory & Commercial Contract Intelligence Platform</span>
-          </div>
-          <div>
-            <span className="text-slate-500">Powered by Azure Document Intelligence & Azure OpenAI</span>
-          </div>
-        </div>
+      {/* Footer */}
+      <footer className="border-t border-slate-300 bg-[#F6F9FB] py-4 text-center text-xs font-bold text-slate-700 mt-auto">
+        Evren AI
       </footer>
 
     </div>
