@@ -6,14 +6,13 @@ interface EvrenExtractionViewProps {
   onReupload: () => void;
 }
 
-type SectionKey = 'all' | 'parties' | 'commercials' | 'payments' | 'insights';
+type SectionKey = 'all' | 'parties' | 'commercials' | 'payments';
 
 const SECTIONS: { id: SectionKey; label: string }[] = [
   { id: 'all', label: 'All Sections' },
   { id: 'parties', label: '1. Party Names' },
   { id: 'commercials', label: '2. Timeline & Commercials' },
   { id: 'payments', label: '3. Payment Terms' },
-  { id: 'insights', label: '4. Insights' },
 ];
 
 const dash = (val?: string | number | null): string => {
@@ -53,7 +52,7 @@ export const EvrenExtractionView: React.FC<EvrenExtractionViewProps> = ({
   onReupload,
 }) => {
   const [activeSection, setActiveSection] = useState<SectionKey>('all');
-  const { parties, commercials, payment_terms, suggested_insights, raw_summary } = data;
+  const { parties, commercials, payment_terms, suggested_insights } = data;
 
   const sp = parties.service_provider;
   const cl = parties.client;
@@ -349,104 +348,6 @@ export const EvrenExtractionView: React.FC<EvrenExtractionViewProps> = ({
               </Table>
             </div>
           )}
-        </Section>
-      )}
-
-      {/* 4. Suggested Insights */}
-      {(activeSection === 'all' || activeSection === 'insights') && (
-        <Section
-          title="4. Suggested Insights"
-          subtitle="Key stakeholders, regulatory reference frameworks, and legal covenants"
-        >
-          {/* Key Stakeholders Table */}
-          {suggested_insights.key_stakeholders && suggested_insights.key_stakeholders.length > 0 && (
-            <div className="mb-4">
-              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                Key Stakeholders
-              </h3>
-              <Table>
-                <thead>
-                  <tr>
-                    <th className={th}>Name</th>
-                    <th className={th}>Role</th>
-                    <th className={th}>Entity</th>
-                    <th className={th}>Responsibility</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {suggested_insights.key_stakeholders.map((s, idx) => (
-                    <tr key={idx}>
-                      <td className={`${td} font-semibold text-slate-900`}>{dash(s.name)}</td>
-                      <td className={td}>{dash(s.role)}</td>
-                      <td className={td}>{dash(s.entity)}</td>
-                      <td className={td}>{dash(s.responsibility)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          )}
-
-          {/* Regulatory Frameworks Table */}
-          {suggested_insights.regulatory_frameworks && suggested_insights.regulatory_frameworks.length > 0 && (
-            <div className="mb-4">
-              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                Regulatory Frameworks
-              </h3>
-              <Table>
-                <thead>
-                  <tr>
-                    <th className={`${th} w-12 text-center`}>#</th>
-                    <th className={th}>Applicable Standard / Framework</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {suggested_insights.regulatory_frameworks.map((fw, idx) => (
-                    <tr key={idx}>
-                      <td className={`${td} text-center font-semibold`}>{idx + 1}</td>
-                      <td className={td}>{fw}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          )}
-
-          {/* Legal Safeguards Table */}
-          {suggested_insights.legal_safeguards && suggested_insights.legal_safeguards.length > 0 && (
-            <div className="mb-4">
-              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                Legal Safeguards
-              </h3>
-              <Table>
-                <thead>
-                  <tr>
-                    <th className={`${th} w-48`}>Safeguard</th>
-                    <th className={`${th} w-32`}>Clause Ref.</th>
-                    <th className={th}>Summary</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {suggested_insights.legal_safeguards.map((ls, idx) => (
-                    <tr key={idx}>
-                      <td className={`${td} font-semibold text-slate-900`}>{dash(ls.title)}</td>
-                      <td className={td}>{dash(ls.clause_ref)}</td>
-                      <td className={td}>{dash(ls.summary)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          )}
-        </Section>
-      )}
-
-      {/* Document Summary (only if present) */}
-      {raw_summary && (
-        <Section title="Document Summary">
-          <p className="text-xs text-slate-700 leading-relaxed">
-            {raw_summary}
-          </p>
         </Section>
       )}
 
