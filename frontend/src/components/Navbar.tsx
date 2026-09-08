@@ -8,6 +8,7 @@ interface NavbarProps {
   setActiveTab: (tab: 'upload' | 'draft' | 'preview' | 'history') => void;
   hasExtractedData: boolean;
   hasDraftInvoice: boolean;
+  onSwitchToEvren?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -15,7 +16,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
   hasExtractedData,
-  hasDraftInvoice
+  hasDraftInvoice,
+  onSwitchToEvren
 }) => {
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-30 no-print">
@@ -114,6 +116,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </span>
             </div>
+
+            {onSwitchToEvren && (
+              <button
+                onClick={onSwitchToEvren}
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#0c1f33] hover:bg-[#153454] border border-[#1e3a5f] shadow-sm transition-all hover:scale-105"
+                title="Switch to Evren AI Advisory Intelligence"
+              >
+                <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+                <span>Evren AI</span>
+              </button>
+            )}
           </div>
 
         </div>

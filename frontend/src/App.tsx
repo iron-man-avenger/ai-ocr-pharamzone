@@ -14,8 +14,28 @@ import {
 } from './types/invoice';
 import { api } from './services/api';
 import { AlertCircle, History } from 'lucide-react';
+import { EvrenPage } from './components/evren/EvrenPage';
 
 export function App() {
+  const [currentApp, setCurrentApp] = useState<'pharma' | 'evren'>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.includes('pharma')) return 'pharma';
+      if (hash.includes('evren')) return 'evren';
+      const saved = localStorage.getItem('evren_active_app');
+      if (saved === 'pharma' || saved === 'evren') return saved;
+    }
+    return 'evren'; // Default to Evren AI for this session
+  });
+
+  const switchApp = (app: 'pharma' | 'evren') => {
+    setCurrentApp(app);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('evren_active_app', app);
+      window.location.hash = app;
+    }
+  };
+
   const [activeTab, setActiveTab] = useState<'upload' | 'draft' | 'preview' | 'history'>('upload');
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [sampleAgreements, setSampleAgreements] = useState<SampleAgreementItem[]>([]);
@@ -128,6 +148,10 @@ export function App() {
     }
   };
 
+  if (currentApp === 'evren') {
+    return <EvrenPage onSwitchApp={() => switchApp('pharma')} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       
@@ -138,6 +162,7 @@ export function App() {
         setActiveTab={setActiveTab}
         hasExtractedData={!!extractedAgreement}
         hasDraftInvoice={!!draftInvoice}
+        onSwitchToEvren={() => switchApp('evren')}
       />
 
       {/* Error Alert Toast */}

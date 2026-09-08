@@ -9,8 +9,10 @@ from app.models.schemas import (
     InvoiceDraftResponse,
     HealthResponse
 )
+from app.models.evren_schemas import EvrenExtractionResponse
 from app.services.azure_doc_intel import doc_intel_service
 from app.services.azure_openai_extractor import openai_extractor_service
+from app.services.evren_extractor import evren_extractor_service
 from app.services.invoice_engine import invoice_engine
 from app.services.forex_service import forex_service
 
@@ -114,3 +116,65 @@ async def get_sample_file(filename: str):
 async def get_forex_rates():
     """Returns current live Forex rates to INR (with caching and fallback)"""
     return forex_service.get_rates()
+
+# -------------------------------------------------------------------------
+# EVREN AI - Advisory, Legal & Commercial Contract Intelligence Endpoints
+# -------------------------------------------------------------------------
+
+ADVISORY_PDF_PATH = os.path.join(
+    SAMPLES_DIR,
+    "advisory",
+    "Signed_Standard Advisory Engagement Letter_Project Pinnacle_18Feb20261.pdf"
+)
+
+@router.post("/evren/extract", response_model=EvrenExtractionResponse)
+async def extract_advisory_contract(file: UploadFile = File(...)):
+    """
+    Evren AI Dynamic Extraction Endpoint:
+    Accepts any Advisory, Master Services Agreement, Engagement Letter, or Legal Contract PDF/image.
+    Executes Azure Document Intelligence Layout OCR -> Azure OpenAI Evren Extractor.
+    Returns structured data covering:
+      1) Party Names & Corporate Profiles
+      2) Timeline / Commercials
+      3) Payment Terms and Conditions
+      4) Suggested Smart Insights
+    """
+    if not file.filename.lower().endswith((".pdf", ".png", ".jpg", ".jpeg")):
+        raise HTTPException(status_code=400, detail="Only PDF or image files are supported.")
+
+    try:
+        file_bytes = await file.read()
+
+        # Step 1: Document Intelligence OCR
+        ocr_result = await doc_intel_service.analyze_document(file_bytes, filename=file.filename)
+
+        # Step 2: Evren AI Structured Extraction
+        extracted_data = await evren_extractor_service.extract_advisory_data(ocr_result)
+
+        return extracted_data
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Evren AI extraction failed: {str(e)}")
+
+@router.get("/evren/sample-advisory", response_model=EvrenExtractionResponse)
+async def get_sample_advisory_data():
+    """
+    Returns high-fidelity extracted intelligence for Project Pinnacle
+    (Signed Standard Advisory Engagement Letter - KPMG & Brookfield Private Capital) instantly.
+    """
+    return evren_extractor_service._pinnacle_fallback_extraction(
+        "",
+        "Signed_Standard Advisory Engagement Letter_Project Pinnacle_18Feb20261.pdf"
+    )
+
+@router.get("/evren/sample-file")
+async def get_evren_sample_file():
+    """Serve the authentic Signed Advisory Engagement Letter PDF for preview & download"""
+    if not os.path.exists(ADVISORY_PDF_PATH):
+        raise HTTPException(status_code=404, detail="Advisory sample PDF file not found on server")
+    return FileResponse(
+        ADVISORY_PDF_PATH,
+        media_type="application/pdf",
+        filename="Signed_Standard Advisory Engagement Letter_Project Pinnacle_18Feb20261.pdf"
+    )
+
