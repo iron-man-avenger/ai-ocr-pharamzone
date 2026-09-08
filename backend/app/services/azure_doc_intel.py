@@ -9,10 +9,10 @@ class AzureDocumentIntelligenceService:
         self.endpoint = settings.AZURE_DOC_INTEL_ENDPOINT
         self.key = settings.AZURE_DOC_INTEL_KEY
 
-    async def analyze_document(self, file_bytes: bytes, filename: str = "") -> Dict[str, Any]:
+    async def analyze_document(self, file_bytes: bytes, filename: str = "", allow_fallback: bool = True) -> Dict[str, Any]:
         """
         Analyze document using Azure Document Intelligence Layout model.
-        Falls back to intelligent mock extractor if Azure credentials are not set.
+        Falls back to intelligent mock extractor only if allow_fallback is True.
         """
         if settings.has_doc_intel:
             try:
@@ -53,14 +53,14 @@ class AzureDocumentIntelligenceService:
 
             except Exception as e:
                 logger.error(f"Azure Document Intelligence error: {e}")
-                if not settings.ENABLE_MOCK_FALLBACK:
-                    raise e
+                if not allow_fallback or not settings.ENABLE_MOCK_FALLBACK:
+                    raise RuntimeError(f"Azure Document Intelligence could not parse '{filename}': {str(e)}")
                 logger.warning("Falling back to simulated OCR extraction...")
 
-        if settings.ENABLE_MOCK_FALLBACK:
+        if allow_fallback and settings.ENABLE_MOCK_FALLBACK:
             return self._mock_extraction(file_bytes, filename)
         
-        raise ValueError("Azure Document Intelligence credentials are not configured and mock fallback is disabled.")
+        raise ValueError("Azure Document Intelligence credentials are not configured and fallback is disabled.")
 
     def _mock_extraction(self, file_bytes: bytes, filename: str) -> Dict[str, Any]:
         """

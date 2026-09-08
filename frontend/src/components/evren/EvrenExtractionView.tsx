@@ -23,13 +23,11 @@ import {
 interface EvrenExtractionViewProps {
   data: EvrenExtractionResponse;
   onReupload: () => void;
-  samplePdfUrl: string;
 }
 
 export const EvrenExtractionView: React.FC<EvrenExtractionViewProps> = ({
   data,
   onReupload,
-  samplePdfUrl,
 }) => {
   const [activeSection, setActiveSection] = useState<'all' | 'parties' | 'commercials' | 'payments'>('all');
 
@@ -149,19 +147,24 @@ export const EvrenExtractionView: React.FC<EvrenExtractionViewProps> = ({
           </p>
         </div>
 
-        {data.source_filename.toLowerCase().includes('pinnacle') && (
-          <div className="flex items-center space-x-2">
-            <a
-              href={samplePdfUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center space-x-1.5 text-xs font-bold px-3.5 py-2 rounded-lg bg-[#1D6597] hover:bg-[#16507a] text-white shadow-sm transition-all hover:scale-105"
-            >
-              <Download className="w-3.5 h-3.5 text-[#E3EFF7]" />
-              <span>View Sample PDF</span>
-            </a>
-          </div>
-        )}
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => {
+              const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              const baseName = data.source_filename.replace(/\.[^/.]+$/, '') || 'contract';
+              a.download = `${baseName}_extracted_data.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="flex items-center space-x-1.5 text-xs font-bold px-3.5 py-2 rounded-lg bg-[#1D6597] hover:bg-[#16507a] text-white shadow-sm transition-all hover:scale-105"
+          >
+            <Download className="w-3.5 h-3.5 text-[#E3EFF7]" />
+            <span>Export Extracted JSON</span>
+          </button>
+        </div>
       </div>
 
       {/* Structured Extraction Flow Header (3 Core Sections) */}

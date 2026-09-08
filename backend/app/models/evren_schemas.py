@@ -41,7 +41,7 @@ class PartyDetail(BaseModel):
 class PartiesSection(BaseModel):
     service_provider: PartyDetail = Field(default_factory=lambda: PartyDetail(name="Service Provider", role="Service Provider / Advisory Firm"))
     client: PartyDetail = Field(default_factory=lambda: PartyDetail(name="Client", role="Client / Counterparty"))
-    project_name: Optional[str] = Field(None, description="Project code or subject matter (e.g. Project Pinnacle)")
+    project_name: Optional[str] = Field(None, description="Project name, engagement title, or subject matter")
     target_assets_scope: Optional[str] = Field(None, description="Target assets, sites, or locations involved")
     related_parties: List[str] = Field(default_factory=list, description="Third-parties or conflict disclosures mentioned")
 
@@ -207,6 +207,13 @@ class Stakeholder(BaseModel):
                 "entity": "Contracting Entity",
                 "responsibility": text
             }
+        elif isinstance(data, dict):
+            if not data.get("name"):
+                data["name"] = data.get("full_name") or data.get("role") or "Key Stakeholder"
+            if not data.get("role"):
+                data["role"] = data.get("designation") or data.get("title") or "Engagement Stakeholder"
+            if not data.get("entity"):
+                data["entity"] = data.get("organization") or data.get("company") or "Contracting Entity"
         return data
 
 class MilestoneStep(BaseModel):
@@ -229,6 +236,13 @@ class MilestoneStep(BaseModel):
                 "description": text,
                 "badge": "Scheduled"
             }
+        elif isinstance(data, dict):
+            if not data.get("title"):
+                data["title"] = data.get("name") or data.get("description") or "Milestone Step"
+            if not data.get("date_or_trigger"):
+                data["date_or_trigger"] = data.get("date") or data.get("trigger") or "As scheduled"
+            if not data.get("description"):
+                data["description"] = data.get("details") or data.get("title") or ""
         return data
 
 class LegalSafeguard(BaseModel):
@@ -246,6 +260,11 @@ class LegalSafeguard(BaseModel):
                 "title": title or "Legal Safeguard",
                 "summary": text
             }
+        elif isinstance(data, dict):
+            if not data.get("title"):
+                data["title"] = data.get("name") or data.get("clause") or "Legal Safeguard"
+            if not data.get("summary"):
+                data["summary"] = data.get("description") or data.get("text") or ""
         return data
 
 class SuggestedInsights(BaseModel):
@@ -283,6 +302,12 @@ class SuggestedInsights(BaseModel):
                     elif isinstance(step, dict):
                         if not step.get("step_number"):
                             step["step_number"] = idx + 1
+                        if not step.get("title"):
+                            step["title"] = step.get("name") or "Milestone Step"
+                        if not step.get("date_or_trigger"):
+                            step["date_or_trigger"] = step.get("date") or step.get("trigger") or "As scheduled"
+                        if not step.get("description"):
+                            step["description"] = step.get("details") or step.get("title") or ""
                         formatted_steps.append(step)
                 data["milestone_stepper"] = formatted_steps
             else:
@@ -305,6 +330,12 @@ class SuggestedInsights(BaseModel):
                             "responsibility": sh
                         })
                     elif isinstance(sh, dict):
+                        if not sh.get("name"):
+                            sh["name"] = sh.get("full_name") or sh.get("role") or "Key Stakeholder"
+                        if not sh.get("role"):
+                            sh["role"] = sh.get("designation") or sh.get("title") or "Stakeholder"
+                        if not sh.get("entity"):
+                            sh["entity"] = "Contracting Entity"
                         formatted_sh.append(sh)
                 data["key_stakeholders"] = formatted_sh
             else:
@@ -322,6 +353,10 @@ class SuggestedInsights(BaseModel):
                             "summary": sg
                         })
                     elif isinstance(sg, dict):
+                        if not sg.get("title"):
+                            sg["title"] = sg.get("name") or "Legal Safeguard"
+                        if not sg.get("summary"):
+                            sg["summary"] = sg.get("description") or sg.get("text") or ""
                         formatted_ls.append(sg)
                 data["legal_safeguards"] = formatted_ls
             else:

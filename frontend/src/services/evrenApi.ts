@@ -20,13 +20,4 @@ export const evrenApi = {
     });
     return response.data;
   },
-
-  async getSampleAdvisory(): Promise<EvrenExtractionResponse> {
-    const response = await apiClient.get<EvrenExtractionResponse>('/sample-advisory');
-    return response.data;
-  },
-
-  getSamplePdfUrl(): string {
-    return '/api/evren/sample-file';
-  }
 };

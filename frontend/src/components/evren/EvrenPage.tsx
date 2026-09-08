@@ -74,7 +74,6 @@ export const EvrenPage: React.FC<EvrenPageProps> = ({ onSwitchApp }) => {
           <EvrenExtractionView
             data={extractedData}
             onReupload={() => setActiveTab('upload')}
-            samplePdfUrl={evrenApi.getSamplePdfUrl()}
           />
         )}
       </main>
