@@ -149,17 +149,19 @@ export const EvrenExtractionView: React.FC<EvrenExtractionViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <a
-            href={samplePdfUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center space-x-1.5 text-xs font-bold px-3.5 py-2 rounded-lg bg-[#1D6597] hover:bg-[#16507a] text-white shadow-sm transition-all hover:scale-105"
-          >
-            <Download className="w-3.5 h-3.5 text-[#E3EFF7]" />
-            <span>View Original PDF</span>
-          </a>
-        </div>
+        {data.source_filename.toLowerCase().includes('pinnacle') && (
+          <div className="flex items-center space-x-2">
+            <a
+              href={samplePdfUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center space-x-1.5 text-xs font-bold px-3.5 py-2 rounded-lg bg-[#1D6597] hover:bg-[#16507a] text-white shadow-sm transition-all hover:scale-105"
+            >
+              <Download className="w-3.5 h-3.5 text-[#E3EFF7]" />
+              <span>View Sample PDF</span>
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Structured Extraction Flow Header (3 Core Sections) */}
@@ -334,7 +336,7 @@ export const EvrenExtractionView: React.FC<EvrenExtractionViewProps> = ({
                 <span>Execution Date</span>
               </span>
               <div className="text-lg font-bold text-[#3F657F] mt-1">
-                {commercials.execution_date || '18-Feb-2026'}
+                {commercials.execution_date || 'Not Specified'}
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
                 Mutual signature date
@@ -348,7 +350,7 @@ export const EvrenExtractionView: React.FC<EvrenExtractionViewProps> = ({
                 <span>Validity / Delivery Timeline</span>
               </span>
               <div className="text-lg font-bold text-[#3F657F] mt-1">
-                {commercials.validity_timeline?.split('(')[0] || '30 May 2026'}
+                {commercials.validity_timeline?.split('(')[0] || 'As agreed'}
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
                 Provisional milestone window
@@ -361,7 +363,7 @@ export const EvrenExtractionView: React.FC<EvrenExtractionViewProps> = ({
                 Administrative Expenses
               </span>
               <div className="text-lg font-bold text-[#3F657F] mt-1">
-                3% (₹72,000 INR)
+                {commercials.administrative_expenses || 'As per agreement'}
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
                 Printing, telecom, courier
