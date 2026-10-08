@@ -45,16 +45,24 @@ async def extract_agreement(file: UploadFile = File(...)):
     try:
         file_bytes = await file.read()
         
-        # Step 1: Azure Document Intelligence OCR
-        ocr_result = await doc_intel_service.analyze_document(file_bytes, filename=file.filename)
+        # Step 1: Azure Document Intelligence OCR (no silent simulated fallback for user uploads)
+        ocr_result = await doc_intel_service.analyze_document(file_bytes, filename=file.filename, allow_fallback=False)
         
+        if not ocr_result.get("content") or len(ocr_result.get("content", "").strip()) == 0:
+            raise HTTPException(
+                status_code=422,
+                detail=f"No readable text could be extracted from '{file.filename}'. Please verify the document is not blank, corrupted, or password-protected."
+            )
+
         # Step 2: Azure OpenAI Structured Extraction
         extracted_data = await openai_extractor_service.extract_agreement_data(ocr_result)
         
         return extracted_data
 
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Extraction failed: {str(e)}")
+        raise HTTPException(status_code=422, detail=f"Pharmazone agreement extraction error: {str(e)}")
 
 @router.post("/generate-draft", response_model=InvoiceDraftResponse)
 async def generate_draft(req: InvoiceDraftRequest):
